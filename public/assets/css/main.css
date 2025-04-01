@@ -1,0 +1,165 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600&display=swap");
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("../fonts/inter-light.woff2?v=3.13") format("woff2"), url("../fonts/inter-light.woff?v=3.13") format("woff");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/inter-regular.woff2?v=3.13") format("woff2"), url("../fonts/inter-regular.woff?v=3.13") format("woff");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/inter-medium.woff2?v=3.13") format("woff2"), url("../fonts/inter-medium.woff?v=3.13") format("woff");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/inter-bold.woff2?v=3.13") format("woff2"), url("../fonts/iter-bold.woff?v=3.13") format("woff");
+}
+body[data-layout=horizontal][data-topbar=light] .topnav
+{
+    background-color:#04585a ;
+}
+.mainpage-content
+{
+    padding: 40px 0px !important;
+    margin-top:150px;
+}
+
+.filter-container {
+  z-index: 1000;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+.fw-bold
+{
+  font-size: 20px;
+  margin-top: 15px;
+  color: #04585a;
+}
+.ratinglabel
+{
+<<<<<<< HEAD
+  font-size: 15px;
+=======
+  /* font-size: 15px; */
+  font-size: 14px;
+>>>>>>> 6f0f4a0e7c364806cd18c9a6b5a00fe9555112fe
+  font-weight: 400;
+}
+.filterborder{
+  border-bottom: #ebebeb solid 1px;
+}
+.custombtn
+{
+  background: none;
+  color: #04585a;
+  font-size: 15px;
+  padding: 0px;
+  margin-top: 5px;
+  border: none;
+  font-weight: 600;
+}
+.custombtn:hover
+{
+  color: #1b9799;
+  background: none;
+  border: none;
+  transition: all 0.4s ease-out;
+}
+.card-group
+{
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+}
+/* #event-list
+{
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+} */
+.eventimg
+{
+  max-width: 100%;
+  max-height: 100%;
+}
+.card-footer
+{
+  background: #fff;
+}
+.topcustombtn:hover
+{
+  background: #04585a;
+  transition: all 0.4s ease-out;
+}
+.tealcolor
+{
+  color: #04585a;
+}
+.topnav .navbar-nav .nav-link
+{
+  color: rgba(255,255,255,.9) !important;
+}
+.login-wrapper
+{
+  width: 40% !important;
+}
+.maincontpad
+{
+  padding: 10px 20px !important;
+}
+
+/* Hide filters in mobile, only show in offcanvas */
+@media (max-width: 768px) {
+  .filter-container .filters {
+      display: none;
+  }
+}
+
+
+@media (max-width: 480px)
+{
+    body[data-layout=horizontal][data-topbar=light] .topnav
+    {
+        background-color:#fff ;
+    }
+    .card-group
+    {
+      grid-template-columns: auto;
+    }
+    .filter-container
+    {
+      box-shadow: none;
+      padding: 0px;
+      background: none;
+    }
+    .wrapper-page
+    {
+      margin: 10% auto !important;
+    }
+    .topnav .navbar-nav .nav-link
+    {
+      color: #4d4d4d !important;
+    }
+    .login-wrapper
+    {
+      width: 100%;
+    }
+    .maincontpad
+    {
+      padding: 10px 30px !important;
+    }
+}
+
