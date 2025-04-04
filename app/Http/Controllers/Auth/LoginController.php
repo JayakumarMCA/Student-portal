@@ -51,7 +51,7 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($request->only('email', 'password'))) {
-            return redirect()->intended('/get-assets');
+            return redirect()->intended('/dashboard');
         }
 
         return back()->withErrors(['email' => 'Invalid login credentials']);

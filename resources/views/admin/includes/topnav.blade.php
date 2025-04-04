@@ -12,39 +12,8 @@
                                     </li>
                                 @endcan
     
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/get-assets">
-                                        <i class="ri-airplay-fill me-1"></i> Assets
-                                    </a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/events">
-                                        <i class="ri-calendar-event-line me-1"></i> Events
-                                    </a>
-                                </li>
-                                @can('enquiry-create')
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{route('enquiries.create')}}">
-                                            <i class="ri-bar-chart-2-line me-1"></i> Support Form
-                                        </a>
-                                    </li>
-                                @endcan
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">
-                                        <i class="ri-question-line me-0"></i> How to use
-                                    </a>
-                                </li>
-                                
                                 @canAny(['user-list','asset-list','event-list','campaign-list'])
-                                    @can('campaign-list')
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="{{route('campaigns.index')}}">
-                                                <i class="ri-camera-lens-line me-1"></i> Campaign
-                                            </a>
-                                        </li>
-                                    @endcan
+                                    
                                     <li class="nav-item dropdown">
                                         <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-apps" role="button"
                                         >
@@ -53,18 +22,6 @@
                                         <div class="dropdown-menu" aria-labelledby="topnav-apps">
                                             @can('user-list')
                                                 <a href="{{route('users.index')}}" class="dropdown-item">Users</a>
-                                            @endcan
-                                            @can('asset-list')
-                                                <a href="{{route('assetdatas.index')}}" class="dropdown-item">Assets</a>
-                                            @endcan
-                                            @can('event-list')
-                                                <a href="{{route('events.index')}}" class="dropdown-item">Event</a>
-                                            @endcan
-                                            <!-- @can('campaign-list')
-                                                <a href="{{route('campaigns.index')}}" class="dropdown-item">Campaign</a>
-                                            @endcan -->
-                                            @can('enquiry-list')
-                                                <a href="{{route('enquiries.index')}}" class="dropdown-item">Support Enquiry</a>
                                             @endcan
                                         </div>
                                     </li>
