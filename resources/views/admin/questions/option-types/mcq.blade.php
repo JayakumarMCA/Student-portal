@@ -10,25 +10,19 @@
             @php
                 $rowCount++;
             @endphp
-        <div class="col-sm-11 row" id="optionRow_{{ $rowCount }}">
-            <div class="col-sm-9">
-                <div class="form-group my-3">
-                <label for="option_text_label_{{ $rowCount }}" class="your-label-class">
-                         Option{{ $rowCount }}
-                    </label>
-                    <textarea name="option[{{ $rowCount }}]" id="option_{{ $rowCount }}-text" class="d-none">{{ strip_tags($options->answer_value) }}</textarea>
-                    <!-- <div id="option_{{ $rowCount }}" class="your-div-class">{{ strip_tags($options->answer_value) }}</div> -->
-                    <input type="text" name="option[{{ $rowCount }}]" id="option_{{ $rowCount }}" value="{{ strip_tags($options->answer_value) }}" class="form-control"/>
-                    <!-- <textarea class="textarea form-control" id="option_{{ $rowCount }}" rows="2" placeholder="Enter The Option..">{{ strip_tags($options->answer_value) }}</textarea> -->
-                    <input type="radio" id="is_correct_{{ $rowCount }}" name="is_correct" value="{{ $rowCount }}" @if($options->is_correct == 1) checked @endif>
-                    <label for="is_correct_{{ $rowCount }}" class="your-label-class">
-                        {{ __('CorrectAnswer') }}
-                    </label>
-
+            <div class="col-sm-11 row" id="optionRow_{{ $rowCount }}">
+                <div class="col-sm-9">
+                    <div class="form-group my-3">
+                        <label for="option_text_label_{{ $rowCount }}" class="your-label-class"> Option{{ $rowCount }} </label>
+                        <textarea name="option[{{ $rowCount }}]" id="option_{{ $rowCount }}-text" class="d-none">{{ strip_tags($options->option_text) }}</textarea>
+                        <input type="text" name="option[{{ $rowCount }}]" id="option_{{ $rowCount }}" value="{{ strip_tags($options->option_text) }}" class="form-control"/>
+                        <input type="radio" id="is_correct_{{ $rowCount }}" name="is_correct" value="{{ $rowCount }}" @if($options->is_correct == 1) checked @endif>
+                        <label for="is_correct_{{ $rowCount }}" class="your-label-class">
+                            {{ __('CorrectAnswer') }}
+                        </label>
+                    </div>
                 </div>
             </div>
-            
-        </div>
         @endforeach
     @else
         @php
@@ -37,17 +31,13 @@
         <div class="col-sm-12 row">
             <div class="col-md-9 ">
                 <div class="form-group my-3">
-                <label for="option_text_label_1" class="your-label-class">
-                    {{ __('Option 1') }}
-                </label>
-                <!-- <div id="option_1" class="your-div-class"></div> -->
-                <textarea name="option[1]" id="option_1-text" class="d-none"></textarea>
-                <input type="text" name="option[1]" id="option_1"  class="form-control"/>
-                <!-- <textarea class="textarea form-control" id="option_1" rows="2" placeholder="Enter The Option.."></textarea> -->
-                <input type="radio" id="is_correct_1" name="is_correct" value="1">
-                <label for="is_correct_1" class="your-label-class">
-                    {{ __('CorrectAnswer') }}
-                </label>
+                    <label for="option_text_label_1" class="your-label-class">
+                        {{ __('Option 1') }}
+                    </label>
+                    <textarea name="option[1]" id="option_1-text" class="d-none"></textarea>
+                    <input type="text" name="option[1]" id="option_1"  class="form-control"/>
+                    <input type="radio" id="is_correct_1" name="is_correct" value="1">
+                    <label for="is_correct_1" class="your-label-class">{{ __('CorrectAnswer') }}</label>
                 </div>
             </div>
             
@@ -55,21 +45,13 @@
         <div class="col-sm-12 row">
             <div class="col-md-9 ">
                 <div class="form-group my-3 flex">
-                <label for="option_text_label_2" class="your-label-class">
-    {{ __('Option 2') }}
-    
-</label>
-<!-- <div id="option_2" class="your-div-class"></div> -->
-<textarea name="option[2]" id="option_2-text" class="d-none"></textarea>
-<input type="text" name="option[2]" id="option_2" class="form-control" />
-<!-- <textarea class="textarea form-control" id="option_2" rows="2" placeholder="Enter The Option.."></textarea> -->
-
-
-<input type="radio" id="is_correct_2" name="is_correct" value="2">
-<label for="is_correct_2" class="your-label-class">
-    {{ __('CorrectAnswer') }}
-</label>
-
+                    <label for="option_text_label_2" class="your-label-class">{{ __('Option 2') }}</label>
+                    <textarea name="option[2]" id="option_2-text" class="d-none"></textarea>
+                    <input type="text" name="option[2]" id="option_2" class="form-control" />
+                    <input type="radio" id="is_correct_2" name="is_correct" value="2">
+                    <label for="is_correct_2" class="your-label-class">
+                        {{ __('CorrectAnswer') }}
+                    </label>
                 </div>
             </div>
             

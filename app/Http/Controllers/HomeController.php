@@ -9,11 +9,12 @@ use App\Models\Product;
 use App\Models\AssetType;
 use App\Models\AssetUtilization;
 use App\Models\Asset;
-use App\Models\Industry;
-use App\Models\UsageLog;
-use App\Mail\AssetEmail;
+use App\Models\CourseMaster;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 
 use Auth;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -25,304 +26,167 @@ use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
 {
-    public function getEvent()
-    {
-        // Fetch data from tables
-        $countries          =   Country::pluck('name', 'id');
-        $languages          =   Language::pluck('name', 'id');
-        $events             =   Event::with('country','language')->paginate(15);
-
-        return view('admin.event', compact('countries', 'events','languages'));
-    }
-    public function getFetchEventsold(Request $request)
-    {
-        $query = Event::with('country','language')->query();
-
-        // Apply filters
-        if ($request->has('languages')) {
-            $query->whereIn('language_id', $request->languages);
-        }
-
-        if ($request->has('countries')) {
-            $query->whereIn('country_id', $request->countries);
-        }
-
-        if ($request->has('products')) {
-            $query->whereIn('product_id', $request->products);
-        }
-
-        if ($request->has('assetTypes')) {
-            $query->whereIn('asset_type_id', $request->assetTypes);
-        }
-
-        if ($request->has('assetUtilizations')) {
-            $query->whereIn('utilization_id', $request->assetUtilizations);
-        }
-
-        // Apply sorting
-        if ($request->has('sort_by')) {
-            if ($request->sort_by == 'name_asc') {
-                $query->orderBy('name', 'asc');
-            } elseif ($request->sort_by == 'name_desc') {
-                $query->orderBy('name', 'desc');
-            } else {
-                $query->orderBy('date', 'desc');
-            }
-        }
-
-        // Pagination
-        $events = $query->paginate(15);
-
-        return response()->json($events);
-    }
-    public function getFetchEventsOLDs(Request $request)
-    {
-        $query = Event::with('country', 'language');
-        // Apply filters
-        if ($request->filled('languages')) {
-            $query->whereIn('language_id', $request->languages);
-        }
-
-        if ($request->filled('countries')) {
-            $query->whereIn('country_id', $request->countries);
-        }
-        // Apply sorting
-        dd($request->languages);
-        if ($request->filled('sort_by')) {
-            switch ($request->sort_by) {
-                case 'name_asc':
-                    $query->orderBy('title', 'asc');
-                    break;
-                case 'name_desc':
-                    $query->orderBy('title', 'desc');
-                    break;
-                default:
-                    $query->orderBy('date', 'desc');
-                    break;
-            }
-        } else {
-            // Default sorting by latest event date
-            $query->orderBy('date', 'desc');
-        }
-        dd("hi");
-        // Pagination
-        $events = $query->paginate(15);
-        return response()->json([
-            'data' => $events->items(),
-            'current_page' => $events->currentPage(),
-            'last_page' => $events->lastPage(),
-            'total' => $events->total(),
-            'from' => $events->firstItem(),
-            'to' => $events->lastItem(),
-            'pagination' => (string) $events->links(), // Send pagination as HTML
-        ]);
-    }
-    public function getFetchEvents(Request $request)
-    {
-        $query = Event::with('country', 'language');
-        $languages = $request->filled('languages') ? (array) json_decode($request->languages, true) : [];
-        $countries = $request->filled('countries') ? (array) json_decode($request->countries, true) : [];
-
-        if (!empty($languages)) {
-            $query->whereIn('language_id', $languages);
-        }
-
-        if (!empty($countries)) {
-            $query->whereIn('country_id', $countries);
-        }
-        if (!empty($request->search_query)) {
-            $query->where('title', 'like', '%' . $request->search_query . '%');
-        }
-
-        if ($request->filled('sort_by')) {
-            switch ($request->sort_by) {
-                case 'name_asc':
-                    $query->orderBy('title', 'asc');
-                    break;
-                case 'name_desc':
-                    $query->orderBy('title', 'desc');
-                    break;
-                default:
-                    $query->orderBy('date', 'desc');
-                    break;
-            }
-        } else {
-            $query->orderBy('date', 'desc');
-        }
-        $events = $query->paginate(15);
-        $paginationHtml = $events->appends($request->query())->links()->toHtml();
-        return response()->json([
-            'data' => $events->items(),
-            'current_page' => $events->currentPage(),
-            'last_page' => $events->lastPage(),
-            'total' => $events->total(),
-            'from' => $events->firstItem(),
-            'to' => $events->lastItem(),
-            'pagination' => $paginationHtml,
-        ]);
-    }
-    public function getAssetDetails(Request $request)
-    {
-        // Start query with eager loading
-        $query = Asset::with(['industry', 'product', 'assetType', 'utilization', 'language', 'country']);
-    
-        // Apply filters
-        if ($request->filled('industry')) {
-            $query->whereIn('industry_id', (array) $request->industry);
-        }
-        if ($request->filled('product')) {
-            $query->whereIn('product_id', (array) $request->product);
-        }
-        if ($request->filled('asset_type')) {
-            $query->whereIn('asset_type_id', (array) $request->asset_type);
-        }
-        if ($request->filled('utilization')) {
-            $query->whereIn('utilization_id', (array) $request->utilization);
-        }
-        if ($request->filled('language')) {
-            $query->where('language_id', $request->language);
-        }
-        if ($request->filled('country')) {
-            $query->where('country_id', $request->country);
-        }
-        if (!empty($request->search_query)) {
-            $query->where('title', 'like', '%' . $request->search_query . '%');
-        }
-        if ($request->filled('sort_by')) {
-            switch ($request->sort_by) {
-                case 'name_asc':
-                    $query->orderBy('name', 'asc');
-                    break;
-                case 'name_desc':
-                    $query->orderBy('name', 'desc');
-                    break;
-                case 'date':
-                    $query->orderBy('created_at', 'desc');
-                    break;
-            }
-        }
-        $assets = $query->paginate(10);
-        return response()->json([
-            'data' => $assets->items(),
-            'pagination' => $assets->links()->toHtml(),
-        ]);
-    }
-      
-    public function getAssetLists()
-    {
-        $assets = Asset::with(['industry', 'product', 'assetType', 'utilization', 'language', 'country'])->get();
-        $industries = Industry::all();
-        $products = Product::all();
-        $assetTypes = AssetType::all();
-        $utilizations = AssetUtilization::all();
-        $languages = Language::all();
-        $countries = Country::all();
-        return view('admin.page',compact('assets','industries','products','assetTypes','utilizations','languages','countries'));
-    }
-    
-    public function bulkDownload(Request $request)
-    {
-        $assetIds = $request->asset_ids;
-        if (!$assetIds || count($assetIds) === 0) {
-            return response()->json(['error' => 'No assets selected'], 400);
-        }
-        $assets = Asset::whereIn('id', $assetIds)->get();
-        if ($assets->isEmpty()) {
-            return response()->json(['error' => 'No valid files found'], 400);
-        }
-        $response = new StreamedResponse(function () use ($assets) {
-            $zip = new ZipStream(outputName: 'assets.zip', operationMode: OperationMode::NORMAL);
-            foreach ($assets as $asset) {
-                UsageLog::create([
-                    'user_id'=>Auth::user()->id,
-                    'type'=>1,
-                    'type_id'=>$asset->id,
-                    'download_type'=>"download",
-                ]);
-                $filePath = storage_path("app/public/{$asset->file}");
-                if (file_exists($filePath)) {
-                    $zip->addFileFromPath(basename($filePath), $filePath);
-                }
-            }
-            $zip->finish();
-        });
-        $response->headers->set('Content-Type', 'application/octet-stream');
-        $response->headers->set('Content-Disposition', 'attachment; filename="assets.zip"');
-        return $response;
-    }
-    public function fetchDownloadAsset(Request $request)
-    {
-        $asset_id = $request->asset_id;
-        $asset = Asset::find($asset_id);
-
-        if (!$asset) {
-            return response()->json(['error' => 'Asset not found'], 404);
-        }
-        UsageLog::create([
-            'user_id'=>Auth::user()->id,
-            'type'=>1,
-            'type_id'=>$asset->id,
-            'download_type'=>"download",
-        ]);
-        $filePath = storage_path("app/public/{$asset->file}");
-
-        if (!file_exists($filePath)) {
-            return response()->json(['error' => 'File not found'], 404);
-        }
-
-        return response()->file($filePath, [
-            'Content-Type' => mime_content_type($filePath),
-            'Content-Disposition' => 'attachment; filename="' . basename($filePath) . '"',
-        ]);
-    }
-    public function storeEventLog(Request $request)
-    {
-        $log = UsageLog::create([
-            'user_id' => $request->user_id,
-            'type' => 2,
-            'type_id' => $request->type_id,
-            'download_type'=>"click",
-        ]);
-
-        return response()->json(['message' => 'Usage log saved', 'data' => $log]);
-    }
-    public function sendAssetEmail(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'asset_ids' => 'required|array|min:1|max:10', // Limit the number of assets to 10
-            'asset_ids.*' => 'required|exists:assets,id',
-        ]);
-        $filePaths = Asset::whereIn('id', $request->asset_ids)
-            ->pluck('file')
-            ->map(function ($file) {
-                return storage_path('app/public/' . $file); // Use 'public/' for public disk
-            })
-            ->filter(function ($filePath) {
-                return file_exists($filePath); // Ensure the file exists
-            })
-            ->toArray();
-        if (empty($filePaths)) {
-            return response()->json(['message' => 'No valid files found for attachment'], 400);
-        }
-
-        try {
-            Mail::to($request->email)->send(new AssetEmail($filePaths));
-
-            return response()->json(['message' => 'Email sent successfully with attachments']);
-        } catch (\Exception $e) {
-            \Log::error('Failed to send email: ' . $e->getMessage());
-
-            return response()->json(['message' => 'Failed to send email. Please try again later.'], 500);
-        }
-    }
-
     public function getDashboard(Request $request)
     {
         $getUser     =   User::count();
         $getAsset    =   Asset::count();
         $getEvent    =   Event::count();
         return view('admin.dashboard',compact('getUser','getAsset','getEvent'));
+    }
+    public function register(Request $request)
+    {
+        $courses = CourseMaster::pluck('title', 'id');
+        return view('auth.register',compact('courses'));
+    }
+    public function getBatches($course_id)
+    {
+        $batches = \App\Models\Batch::where('course_id', $course_id)->pluck('name', 'id');
+        return response()->json($batches);
+    }
+    public function storeRegister(Request $request)
+    {
+        // Validate form fields
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'mobile' => 'required|digits_between:8,15',
+            'father_name' => 'required|string',
+            'mother_name' => 'required|string',
+            'dob' => 'required|date',
+            'graduate' => 'required|in:1,2',
+            'year_of_passing' => 'required|string|max:10',
+            'whatsapp_num' => 'required|in:1,2',
+            'course_id' => 'required|exists:course_masters,id',
+            'batch_id' => 'required|exists:batches,id',
+            'nri' => 'required|in:1,2',
+            'photo_copy' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'doc' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'id_proof_photo_copy' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'passport_photo_copy' => 'required_if:nri,1|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'address' => 'required|string|max:1000',
+        ]);
+
+        // If NRI, passport is required
+        if ($request->nri == 1 && !$request->hasFile('passport_photo_copy')) {
+            return back()->withErrors(['passport_photo_copy' => 'Passport photo copy is required for NRI'])->withInput();
+        }
+
+        // Handle file uploads
+        $photoCopyPath = $request->file('photo_copy')->storeAs(
+            'students/photo_copy',
+            'photo_' . date('Ymd_His') . '_' . Str::random(8) . '.' . $request->file('photo_copy')->getClientOriginalExtension(),
+            'public'
+        );
+        
+        $idProofPath = $request->file('id_proof_photo_copy')->storeAs(
+            'students/id_proof',
+            'idproof_' . date('Ymd_His') . '_' . Str::random(8) . '.' . $request->file('id_proof_photo_copy')->getClientOriginalExtension(),
+            'public'
+        );
+        $docPath = $request->file('doc')->storeAs(
+            'students/documents',
+            'doc_' . date('Ymd_His') . '_' . \Str::random(6) . '.' . $request->file('doc')->getClientOriginalExtension(),
+            'public'
+        );
+        $passportPath = $request->hasFile('passport_photo_copy')
+            ? $request->file('passport_photo_copy')->storeAs(
+                'students/passport',
+                'passport_' . date('Ymd_His') . '_' . Str::random(8) . '.' . $request->file('passport_photo_copy')->getClientOriginalExtension(),
+                'public'
+            )
+            : null;
+        // Save student
+        $plainPassword = HomeController::generateStrongPassword(14);
+        $hashedPassword = Hash::make($plainPassword);
+        $student = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'mobile' => $request->mobile,
+            'father_name' => $request->father_name,
+            'mother_name' => $request->mother_name,
+            'dob' => $request->dob,
+            'graduate' => $request->graduate,
+            'year_of_passing' => $request->year_of_passing,
+            'whatsapp_num' => $request->whatsapp_num,
+            'course_id' => $request->course_id,
+            'batch_id' => $request->batch_id,
+            'nri' => $request->nri,
+            'photo_copy' => $photoCopyPath,
+            'id_proof_photo_copy' => $idProofPath,
+            'passport_photo_copy' => $passportPath,
+            'doc' => $docPath,
+            'address' => $request->address,
+            'password' => $hashedPassword,
+            'user_type' => 2,
+            'status' => 1,
+            'role_id'=>3
+        ]);
+
+        return redirect()->back()->with('success', 'Registration successful!');
+    }
+    function generateStrongPassword($length = 12) {
+        $upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $lower = 'abcdefghijklmnopqrstuvwxyz';
+        $numbers = '0123456789';
+        $symbols = '!@#$%^&*()_+-={}[]|:;<>,.?';
+    
+        $all = $upper . $lower . $numbers . $symbols;
+        $password = $upper[rand(0, strlen($upper)-1)] .
+                    $lower[rand(0, strlen($lower)-1)] .
+                    $numbers[rand(0, strlen($numbers)-1)] .
+                    $symbols[rand(0, strlen($symbols)-1)];
+    
+        for ($i = 4; $i < $length; $i++) {
+            $password .= $all[rand(0, strlen($all)-1)];
+        }
+    
+        return str_shuffle($password);
+    }
+    public function profile()
+    {
+        $user = auth()->user();
+        $courses = CourseMaster::all();
+        return view('admin.users.profile', compact('user','courses'));
+    }
+    public function changePassword()
+    {
+        return view('admin.users.change-password'); // Show change password form
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'new_password' => 'required|min:8|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/|confirmed',
+            'old_password' => 'required',
+        ]);
+
+        $user = auth()->user();
+
+        if (!Hash::check($request->old_password, $user->password)) {
+            return back()->withErrors(['old_password' => 'Incorrect current password']);
+        }
+
+        $user->update(['password' => Hash::make($request->new_password)]);
+
+        return back()->with('success', 'Password updated successfully.');
+    }
+    public function updateProfile(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'mobile' => 'required|unique:users,mobile,' . $user->id,
+        ]);
+        // Update user details
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'mobile' => $request->mobile,
+        ]);
+
+        // Redirect with success message
+        return back()->with('success', 'Profile updated successfully.');
     }
 }
 

@@ -57,7 +57,7 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="mb-3">
-                                        <label for="product-name" class="form-label">Question Type <span class="text-danger">*</span></label>
+                                        <label for="product-name" class="form-label">Course <span class="text-danger">*</span></label>
                                         <select id="course_id" name="course_id" class="form-control" required>
                                             <option value="">Select Course</option>
                                             @foreach($courses as $id => $title)

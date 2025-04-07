@@ -21,11 +21,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
             'mobile' => '1234567890',
             'password' => Hash::make('admin123'),
-            'organization' => 'Tech Corp',
-            'job_title' => 'Administrator',
-            'city' => 'New York',
-            'country_id' => '1',
             'role_id' => '1', // Role ID if stored in DB
+            'status' => '2', // Role ID if stored in DB
         ]);
         $admin->assignRole('admin'); // Assign Admin Role
 
@@ -34,11 +31,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'superadmin@example.com',
             'mobile' => '9876543210',
             'password' => Hash::make('superadmin123'),
-            'organization' => 'Tech Corp',
-            'job_title' => 'Super Administrator',
-            'city' => 'San Francisco',
-            'country_id' => '1',
-            'role_id' => '2',
+            'role_id' => '2', // Role ID if stored in DB
+            'status' => '2', // Role ID if stored in DB
         ]);
         $superAdmin->assignRole('super-admin'); // Assign Super Admin Role
 
@@ -47,12 +41,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'user@example.com',
             'mobile' => '1112223333',
             'password' => Hash::make('user123'),
-            'organization' => 'Tech Corp',
-            'job_title' => 'Employee',
-            'city' => 'Los Angeles',
-            'country_id' => '1',
             'role_id' => '3',
         ]);
-        $user->assignRole('user'); // Assign User Role
+        $user->assignRole('student'); // Assign User Role
     }
 }

@@ -31,37 +31,6 @@
                                         <input type="text" class="form-control" name="mobile" value="{{ $request->mobile }}"  />
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label class="form-label">Organization</label>
-                                        <input type="text" class="form-control" name="organization" value="{{$request->organization }}"  />
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label class="form-label">Job Title</label>
-                                        <input type="text" class="form-control"  name="job_title" value="{{ $request->job_title }}"  />
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label class="form-label">City</label>
-                                        <input type="text" class="form-control" name="city" value="{{ $request->city }}"  />
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label class="form-label">Country</label>
-                                        <select class="form-control" name="country_id" >
-                                            <option value="">Select Country</option>
-                                            @foreach ($countries as $country)
-                                                <option value="{{ $country->id }}" @if( $request->country_id == $country->id) selected @endif >
-                                                    {{ $country->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
                             </div>
                             <div>
                                 <button class="btn btn-primary" type="submit" name="search" value="submit">Submit</button>
@@ -77,10 +46,10 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-8">
-                                <h4 class="card-title">Users</h4>
+                                <h4 class="card-title">Students</h4>
                             </div>
                             <div class="col-md-4 text-end">
-                                <a href="{{ route('users.create') }}" class="btn btn-primary text-end">Add User</a>
+                                <a href="{{ route('users.create') }}" class="btn btn-primary text-end">Add Student</a>
                             </div>
                         </div>
                         <!-- <h3 class="card-title fs-4">Users List</h3> -->
@@ -95,13 +64,11 @@
                                     <thead>
                                         <tr>
                                             <th  data-priority="1">#</th>
+                                            <th  data-priority="1">Name</th>
                                             <th  data-priority="1">Email</th>
                                             <th  data-priority="1">Mobile</th>
-                                            <th  data-priority="1">Organization</th>
-                                            <th  data-priority="1">Job Title</th>
-                                            <th  data-priority="1">City</th>
-                                            <th  data-priority="1">Country</th>
                                             <th  data-priority="1">Role</th>
+                                            <th  data-priority="1">Status</th>
                                             <th  data-priority="1">Action</th>
                                         </tr>
                                     </thead>
@@ -109,13 +76,11 @@
                                         @foreach ($users as $key => $user)
                                             <tr>
                                                 <td>{{ $key + 1 }}</td>
+                                                <td>{{ $user->name }}</td>
                                                 <td>{{ $user->email }}</td>
                                                 <td>{{ $user->mobile }}</td>
-                                                <td>{{ $user->organization }}</td>
-                                                <td>{{ $user->job_title }}</td>
-                                                <td>{{ $user->city }}</td>
-                                                <td>{{ $user->country->name ?? 'N/A' }}</td>
                                                 <td>{{ $user->role->name ?? 'N/A' }}</td>
+                                                <td>@switch($user->status) @case(1) Pending @break @case(2) Approved @break @case(3) Course Completed @break @case(4) Test Completed @break @default Rejected @endswitch</td>
                                                 <td>
                                                     <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-warning">Edit</a>
 

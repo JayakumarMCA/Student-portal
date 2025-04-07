@@ -51,6 +51,11 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($request->only('email', 'password'))) {
+            $user = Auth::user();
+            if ($user->user_type == 2 && $user->status == 1) {
+                Auth::logout();
+                return back()->withErrors(['error' => 'Please wait for approval.']);
+            }
             return redirect()->intended('/dashboard');
         }
 

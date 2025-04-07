@@ -23,12 +23,24 @@ class User extends Authenticatable
         'name',
         'email',
         'mobile',
+        'father_name',
+        'mother_name',
+        'role_id',
+        'whatsapp_num',
+        'course_id',
+        'batch_id',
+        'graduate',
+        'photo_copy',
+        'doc',
+        'year_of_passing',
+        'id_proof_photo_copy',
+        'nri',
+        'passport_photo_copy',
+        'status',
+        'user_type',
         'password',
-        'organization',
-        'job_title',
-        'city',
-        'country_id',
-        'role_id'
+        'address',
+        'dob'
     ];
 
     /**

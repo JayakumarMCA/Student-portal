@@ -6,3 +6,4 @@
 <!-- App Css-->
 <link href="{{asset('assets/css/app.min.css?v1.1')}}" id="app-style" rel="stylesheet" type="text/css" />
 <link href="{{asset('assets/css/app.css?v1.1')}}" id="app-style" rel="stylesheet" type="text/css" />
+<link href="{{asset('assets/css/main.css?v1.1')}}" id="app-style" rel="stylesheet" type="text/css" />

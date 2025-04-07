@@ -92,7 +92,7 @@
                                         <tr>
                                             <td>{{ $question->id }}</td>
                                             <td>{{ $question->course->title ?? 'N/A' }}</td>
-                                            <td>{{ $question->text }}</td>
+                                            <td>{{ $question->question_text }}</td>
                                             <td>{{ $question->created_at->format('d-m-Y') }}</td>
                                             <td>
                                                 <a href="{{ route('questions.edit', $question->id) }}" class="btn btn-warning btn-sm">Edit</a>

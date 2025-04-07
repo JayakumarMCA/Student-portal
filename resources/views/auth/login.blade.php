@@ -23,6 +23,9 @@
                         </ul>
                     </div>
                 @endif
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
                 <h4 class="text-center mt-0 text-color"><b>Sign In</b></h4>
                 <form class="form-horizontal mt-3 mx-3" action="{{ route('login') }}" method="POST" id="loginForm">
                     @csrf

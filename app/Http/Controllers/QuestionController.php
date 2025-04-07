@@ -7,6 +7,7 @@ use App\Models\Option;
 use App\Models\CourseMaster;
 use Illuminate\Http\Request;
 use App\helpers\Reply;
+use Illuminate\Support\Facades\Validator;
 
 class QuestionController extends Controller
 {
@@ -46,28 +47,68 @@ class QuestionController extends Controller
     // Store a newly created question in storage
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'course_id' => 'required|exists:course_masters,id',
-            'question' => 'required|string',
+        $validator = Validator::make($request->all(), [
             'question_type' => 'required|in:1,2',
+            'course_id' => 'required|exists:course_masters,id',
+            'is_correct' => 'required',
+            'question' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    $comment = trim(str_replace('<p><br></p>', '', $value));
+                    if ($comment === '') {
+                        $fail('The question field is required.');
+                    }
+                },
+            ],
+            'option.*' => [
+                'required_if:option_file.*,null',
+                function ($attribute, $value, $fail) {
+                    $comment = trim(str_replace('<p><br></p>', '', $value));
+                    if ($comment === '') {
+                        $fail('All option fields are required.');
+                    }
+                },
+            ],
+        ], [
+            'question_type.required' => 'Question type is required.',
+            'question_type.in' => 'Invalid question type.',
+            'course_id.required' => 'Course is required.',
+            'course_id.exists' => 'Selected course does not exist.',
+            'is_correct.required' => 'Please select the correct answer.',
+            'option.*.required_if' => 'All option fields are required.',
         ]);
-
-            $question                       =   new Question();
-            $question->question_text        =   $request->question ?? '';
-            $question->question_type_id     =   $request->question_type_id ?? '';
-            $question->course_id            =   $request->test_template_id ?? '';
-            $question->save();
-            $questionId                     =   $question->id;
-            if (isset($request->option) && count($request->option) > 0) {
-                for ($i = 1; $i <= $request->option_count; $i++) {
-                    $answer                 =   new Option();
-                    $answer->question_id    =   $questionId;
-                    $answer->answer_value   =   $request->option[$i];
-                    $answer->is_correct     =   ($request->is_correct == $i) ? 1 : 0;
-                    $answer->save();
+        $hasCorrect = false;
+        if (isset($request->option) && is_array($request->option)) {
+            foreach ($request->option as $index => $value) {
+                if ($request->is_correct == $index) {
+                    $hasCorrect = true;
+                    break;
                 }
             }
-
+        }
+        if ($validator->fails() || !$hasCorrect) {
+            if (!$hasCorrect) {
+                $validator->errors()->add('is_correct', 'Please select the correct answer.');
+            }
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+        $question                       =   new Question();
+        $question->question_text        =   $request->question ?? '';
+        $question->question_type        =   $request->question_type ?? '';
+        $question->course_id            =   $request->course_id ?? '';
+        $question->save();
+        $questionId                     =   $question->id;
+        if (isset($request->option) && count($request->option) > 0) {
+            for ($i = 1; $i <= $request->option_count; $i++) {
+                $answer                 =   new Option();
+                $answer->question_id    =   $questionId;
+                $answer->option_text    =   $request->option[$i];
+                $answer->is_correct     =   ($request->is_correct == $i) ? 1 : 0;
+                $answer->save();
+            }
+        }
         return redirect()->route('questions.index')->with('success', 'Question created successfully.');
     }
 
@@ -80,38 +121,77 @@ class QuestionController extends Controller
     // Show the form for editing the specified question
     public function edit(Question $question)
     {
-        $courses    = CourseMaster::pluck('title', 'id');
-        return view('admin.questions.edit', compact('question','courses'));
+        $courses        =   CourseMaster::pluck('title', 'id');
+        $careeranswers  =   Option::where('question_id',$question->id)->get();
+        return view('admin.questions.edit', compact('question','courses','careeranswers'));
     }
 
     // Update the specified question in storage
-    public function update(Request $request, Question $question)
+    public function update(Request $request, $id)
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
+            'question_type' => 'required|in:1,2',
             'course_id' => 'required|exists:course_masters,id',
-            'question' => 'required|string',
-            'question_type' => 'required|in:single_choice,multiple_choice,text,date',
-            'difficulty_level' => 'required|in:easy,medium,hard',
+            'is_correct' => 'required',
+            'question' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    $comment = trim(str_replace('<p><br></p>', '', $value));
+                    if ($comment === '') {
+                        $fail('The question field is required.');
+                    }
+                },
+            ],
+            'option.*' => [
+                'required_if:option_file.*,null',
+                function ($attribute, $value, $fail) {
+                    $comment = trim(str_replace('<p><br></p>', '', $value));
+                    if ($comment === '') {
+                        $fail('All option fields are required.');
+                    }
+                },
+            ],
+        ], [
+            'question_type.required' => 'Question type is required.',
+            'question_type.in' => 'Invalid question type.',
+            'course_id.required' => 'Course is required.',
+            'course_id.exists' => 'Selected course does not exist.',
+            'is_correct.required' => 'Please select the correct answer.',
+            'option.*.required_if' => 'All option fields are required.',
         ]);
-
-            $question                       =   Question::findOrFail($id);
-            $question->question             =   $request->question;
-            $question->level_id             =   $request->level_id;
-            $question->question_type_id     =   $request->question_type_id;
-            $question->default_score        =   $request->default_score;
-            $question->cat_id               =   $request->cat_id;
-            $question->status               =   $request->status;
-            $question->save();
-            if (isset($request->option) && count($request->option) > 0) {
-                Option::where('question_id', $id)->delete();
-                for ($i = 1; $i <= $request->option_count; $i++) {
-                    $answer = new Option();
-                    $answer->question_id    =   $id;
-                    $answer->answer_value   =   $request->option[$i];
-                    $answer->is_correct     =   ($request->is_correct == $i) ? 1 : 0;
-                    $answer->save();
+        $hasCorrect = false;
+        if (isset($request->option) && is_array($request->option)) {
+            foreach ($request->option as $index => $value) {
+                if ($request->is_correct == $index) {
+                    $hasCorrect = true;
+                    break;
                 }
             }
+        }
+        if ($validator->fails() || !$hasCorrect) {
+            if (!$hasCorrect) {
+                $validator->errors()->add('is_correct', 'Please select the correct answer.');
+            }
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $question                       =   Question::findOrFail($id);
+        $question->question_text        =   $request->question;
+        $question->question_type        =   $request->question_type;
+        $question->course_id            =   $request->course_id;
+        $question->save();
+        if (isset($request->option) && count($request->option) > 0) {
+            Option::where('question_id', $id)->delete();
+            for ($i = 1; $i <= $request->option_count; $i++) {
+                $answer = new Option();
+                $answer->question_id    =   $id;
+                $answer->option_text    =   $request->option[$i];
+                $answer->is_correct     =   ($request->is_correct == $i) ? 1 : 0;
+                $answer->save();
+            }
+        }
 
         return redirect()->route('questions.index')->with('success', 'Question updated successfully.');
     }

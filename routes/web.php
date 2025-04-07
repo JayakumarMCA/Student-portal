@@ -7,6 +7,8 @@ use App\Http\Controllers\CourseMasterController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\BatchDetailController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Mail;
 
 Route::get('/', function () {
@@ -18,9 +20,7 @@ Route::get('/login', function () {
 Route::get('/eventhtml', function () {
     return view('admin.eventhtml');
 });
-Route::get('/register', function () {
-    return view('auth.register');
-});
+Route::get('/register', [HomeController::class, 'register']);
 Route::get('/dashboard', function () {
     return view('admin.dashboard');
 });
@@ -39,9 +39,10 @@ Route::get('/check-mail', function () {
         return '❌ Error sending email: ' . $e->getMessage();
     }
 });
+Route::get('get-batches/{course_id}', [HomeController::class, 'getBatches']);
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-Route::post('/register', [RegisterController::class, 'create'])->name('register');
+Route::post('/register', [HomeController::class, 'storeRegister'])->name('register');
 Route::get('/events', [HomeController::class, 'getEvent']);
 Route::get('/profile', [HomeController::class, 'profile'])->name('user.profile');
 Route::get('/change-password', [HomeController::class, 'changePassword'])->name('user.changePassword');
